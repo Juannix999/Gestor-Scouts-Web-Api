@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestor de Scouts</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; background: #f4f4f9; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        input, button { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        ul { padding-left: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>⛺ Registrar Nuevo Scout</h2>
+        <input type="text" id="nombre" placeholder="Nombre completo">
+        <input type="number" id="edad" placeholder="Edad">
+        <input type="text" id="rama" placeholder="Rama (ej. Pioneros, Tropa)">
+        <button onclick="registrarScout()">Guardar Scout</button>
+    </div>
+
+    <div class="card">
+        <h2>📋 Lista de Scouts Actuales</h2>
+        <ul id="lista"></ul>
+    </div>
+
+    <script>
+        async function cargarScouts() {
+            const respuesta = await fetch('/scouts');
+            const scouts = await respuesta.json();
+            const ul = document.getElementById('lista');
+            ul.innerHTML = '';
+            scouts.forEach(s => {
+                const li = document.createElement('li');
+                li.textContent = `${s.nombre} (${s.edad} años) - Rama: ${s.rama}`;
+                ul.appendChild(li);
+            });
+        }
+
+        async function registrarScout() {
+            const nuevo = {
+                nombre: document.getElementById('nombre').value,
+                edad: parseInt(document.getElementById('edad').value),
+                rama: document.getElementById('rama').value
+            };
+
+            await fetch('/scouts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(nuevo)
+            });
+
+            document.getElementById('nombre').value = '';
+            document.getElementById('edad').value = '';
+            document.getElementById('rama').value = '';
+            
+            cargarScouts();
+        }
+
+        cargarScouts();
+    </script>
+</body>
+</html>
